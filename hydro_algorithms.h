@@ -13,13 +13,15 @@
 #include <queue>
 #include <vector>
 
+static unsigned char inv_dir[] = {16, 32, 64, 128, 1, 2, 4, 8 };
+
 /**
  *  Calculates the flow direction raster of a particular digital elevation model using a flooding algorithm.
  *  Input raster must be of short type.
  * @param dem
  * @param flow_dir
  */
-void rw_flood_flow_direction(raster<short>& dem, raster<char>& flow_dir){
+void rw_flood_flow_direction(raster<short>& dem, raster<unsigned char>& flow_dir){
 
     const int m = USHRT_MAX + 1; // Possible data values present in the digital elevation model
 
@@ -28,8 +30,6 @@ void rw_flood_flow_direction(raster<short>& dem, raster<char>& flow_dir){
      *      16   0   1
      *      8   4   2
      */
-
-    unsigned char inv_dir[] = {16, 32, 64, 128, 1, 2, 4, 8 };
 
     std::stack<cell> Q[m]; // Creates an array of stacks, one for each possible value
 
@@ -68,9 +68,7 @@ void rw_flood_flow_direction(raster<short>& dem, raster<char>& flow_dir){
  * @param flow_dir
  */
 template <typename t>
-void priority_queue_flow_direction(raster<t>& dem, raster<char>& flow_dir){
-
-    unsigned char inv_dir[] = {16, 32, 64, 128, 1, 2, 4, 8 };
+void priority_queue_flow_direction(raster<t>& dem, raster<unsigned char>& flow_dir){
 
     auto comp = [&dem](cell c0, cell c1){ return dem[c0] > dem[c1];};
 
@@ -107,9 +105,7 @@ void priority_queue_flow_direction(raster<t>& dem, raster<char>& flow_dir){
  * @param flow_dir
  * @param flow_acc
  */
-void stack_flow_accumulation(raster<char>& flow_dir, raster<unsigned>& flow_acc){
-
-    unsigned char inv_dir[] = {16, 32, 64, 128, 1, 2, 4, 8 };
+void stack_flow_accumulation(raster<unsigned char>& flow_dir, raster<unsigned>& flow_acc){
 
     for(int i = 0; i < flow_dir.get_rows(); i++){
         for(int j = 0; j < flow_dir.get_cols(); j++){
@@ -142,4 +138,51 @@ void stack_flow_accumulation(raster<char>& flow_dir, raster<unsigned>& flow_acc)
     }
 }
 
+/**
+ *
+ * @param flowdir
+ * @param mask
+ * @param root_cell
+ * @param true_value
+ */
+template <typename t>
+void calc_catchment(raster<unsigned char>& flowdir, raster<t>& mask, cell root_cell, t true_value){
+
+    std::stack<cell> s;
+    mask[root_cell] = true_value;
+    s.push(root_cell);
+
+    while(!s.empty()){
+        cell c = s.top();
+        s.pop();
+        for(int i = 0; i < 8; i++){
+            cell n = c.get_neighbor(i);
+            if(flowdir.is_inside(n)){
+                if(flowdir.has_data(n)){
+                    if(flowdir[n] == inv_dir[i] && !mask.has_data(n)){
+                        mask[n] = true_value;
+                        s.push(n);
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ *
+ * @param flow_dir
+ * @param mask
+ */
+void label_catchments(raster<unsigned char>& flow_dir, raster<unsigned>& mask){
+    unsigned label = 1;
+    for(int i = 0; i < flow_dir.get_rows(); i++){
+        for(int j = 0; j < flow_dir.get_cols(); j++){
+            cell c = cell(i, j);
+            if(flow_dir.is_contour(c)){
+                calc_catchment(flow_dir, mask, c, label++);
+            }
+        }
+    }
+}
 #endif //GEO_PROCC_HYDRO_ALGORITHMS_H

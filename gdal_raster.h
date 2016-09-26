@@ -6,9 +6,11 @@
 #define GEO_PROCC_GDAL_RASTER_H
 
 #include "raster.h"
+
 #include <gdal/gdal_priv.h>
 
 #include <iostream>
+#include <typeinfo>
 
 template<typename t>
 class gdal_raster : public raster<t>{
@@ -17,6 +19,17 @@ class gdal_raster : public raster<t>{
     GDALRasterBand * band;
 
 public:
+
+    GDALDataType get_gdal_dtype(){
+
+        if(typeid(t) == typeid(unsigned char)) return GDT_Byte;
+        if(typeid(t) == typeid(short)) return GDT_Int16;
+        if(typeid(t) == typeid(unsigned)) return GDT_UInt32;
+        if(typeid(t) == typeid(float)) return GDT_Float32;
+        if(typeid(t) == typeid(double)) return GDT_Float64;
+
+        return GDT_Unknown;
+    }
 
     /**
      * Reads a raster using gdal library
@@ -64,7 +77,7 @@ public:
                 source_dataset->GetRasterXSize(),
                 source_dataset->GetRasterYSize(),
                 1,
-                GDT_Byte,
+                get_gdal_dtype(),
                 NULL
         );
 
