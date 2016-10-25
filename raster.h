@@ -16,7 +16,6 @@ protected:
 
     int rows, cols;
     t noval;
-    t * data;
 
 public:
 
@@ -36,15 +35,12 @@ public:
         rows = _rows;
         cols = _cols;
         noval = _noval;
-        data = new t[rows * cols];
     };
 
     /**
      * Destructor, dealocate the data;
      */
-    ~raster(){
-        delete[] data;
-    }
+    virtual ~raster(){}
 
     /**
      * Returns the number of cols
@@ -108,13 +104,11 @@ public:
     }
 
     /**
-     * Returns a reference to the value at cell c
-     * @param c cell
-     * @return reference to data
+     * Returns a pointer to the data of c
+     * @param c
+     * @return pointer to data at c
      */
-    const t& operator [](const cell& c) const{
-        return data[c.get_row() * cols + c.get_col()];
-    };
+    virtual char * get_ptr(const cell& c){}
 
     /**
     * Returns a reference to the value at cell c
@@ -122,7 +116,7 @@ public:
     * @return reference to data
     */
     t& operator [](const cell& c){
-        return data[c.get_row() * cols + c.get_col()];
+        return *((t *) get_ptr(c));
     };
 
 };

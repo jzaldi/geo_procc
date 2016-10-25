@@ -17,7 +17,7 @@ class gdal_raster : public raster<t>{
 
     GDALDataset * dataset;
     GDALRasterBand * band;
-
+    t * data;
 public:
 
     GDALDataType get_gdal_dtype(){
@@ -45,18 +45,20 @@ public:
 
         this->rows = band->GetYSize();
         this->cols = band->GetXSize();
+        this->data = new t[this->rows * this->cols];
         std::cout << band->GetRasterDataType() << std::endl;
         this->noval = (t) band->GetNoDataValue();
         this->data = new t[band->GetXSize() * band->GetYSize()];
         band->RasterIO(GF_Read, 0, 0, band->GetXSize(), band->GetYSize(),
                        this->data, band->GetXSize(), band->GetYSize(),
-                       band->GetRasterDataType(), 0, 0, NULL);
+                       band->GetRasterDataType(), 0, 0);
     }
 
     /**
      * Destructs the object and close the dataset
      */
     ~gdal_raster(){
+        delete[](this->data);
         GDALClose(dataset);
     }
 
@@ -101,6 +103,15 @@ public:
     }
 
     /**
+     * Returns a pointer to the data of c
+     * @param c
+     * @return pointer to data at c
+    */
+    virtual char * get_ptr(const cell& c){
+        return (char*) (data + c.get_row() * this->cols + c.get_col());
+    }
+
+    /**
      * @return Returns a pointer to the gdal_dataset
      */
     GDALDataset * get_dataset(){
@@ -110,7 +121,7 @@ public:
     void save(){
         band->RasterIO(GF_Write, 0, 0, band->GetXSize(), band->GetYSize(),
                        this->data, band->GetXSize(), band->GetYSize(),
-                       band->GetRasterDataType(), 0, 0, NULL);
+                       band->GetRasterDataType(), 0, 0);
     }
 
 };

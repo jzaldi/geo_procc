@@ -42,6 +42,6 @@ cell cell::get_neighbor(int i) const {
  * @return stream
  */
 std::ostream& operator << (std::ostream& os, const cell& c){
-    os << "(" << c.row << "," << c.col << ")";
+    os << "cell(" << c.row << ", " << c.col << ")";
     return os;
 }

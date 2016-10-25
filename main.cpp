@@ -1,30 +1,35 @@
 #include <iostream>
 
 #include "cell.h"
-
+#include <iostream>
 #include "gdal_raster.h"
+#include "big_gdal_raster.h"
 #include "hydro_algorithms.h"
+#include "test_raster.h"
 #include <climits>
+
+#include "node.h"
+
+using namespace std;
+
+/**
+ *
+ * @param raster1
+ * @param belongs_to_region
+ * @param region
+ */
+template <typename t>
+void vectorize_region(raster<t>& raster1, bool (*belongs_to_region)(t), vector<node>& region){
+    
+}
 
 int main() {
 
-    cell c = cell(0, 1);
-    std::cout << CHAR_MAX << std::endl;
+    node n(1, 1);
 
-    const char * input_path = "test_data//output_srtm_flowdir.tif";
-    const char * output_path = "test_data//output_srtm_mask.tif";
+    cout << n << endl;
 
-    //gdal_raster<char> flow_dir = gdal_raster<char>(input_path);
-    //gdal_raster<unsigned> flow_acc = gdal_raster<unsigned>(flow_dir, UINT32_MAX, output_path);
-    gdal_raster<unsigned char> flow_dir = gdal_raster<unsigned char>(input_path);
-    gdal_raster<unsigned> mask = gdal_raster<unsigned>(flow_dir, UINT32_MAX, output_path);
-
-    label_catchments(flow_dir, mask);
-
-    mask.save();
-    //stack_flow_accumulation(flow_dir, flow_acc);
-
-    //flow_acc.save();
+    cout << n.cell_neighbor(3) << endl;
 
     return 0;
 }
