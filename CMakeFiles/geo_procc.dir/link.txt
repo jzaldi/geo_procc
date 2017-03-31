@@ -1,0 +1,1 @@
+/usr/bin/c++    -std=c++11   CMakeFiles/geo_procc.dir/main.cpp.o CMakeFiles/geo_procc.dir/cell.cpp.o CMakeFiles/geo_procc.dir/raster.cpp.o CMakeFiles/geo_procc.dir/gdal_raster.cpp.o  -o geo_procc -lgdal 

@@ -1,0 +1,3 @@
+/home/zaldi/Desktop/geo_procc/CMakeFiles/edit_cache.dir
+/home/zaldi/Desktop/geo_procc/CMakeFiles/rebuild_cache.dir
+/home/zaldi/Desktop/geo_procc/CMakeFiles/geo_procc.dir
